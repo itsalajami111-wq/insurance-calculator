@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hoxton Wealth — Insurance Calculator</title>
+  <style>
+    :root{
+      --bg:#ffffff; --card:#F5F7FA; --text:#1F2937; --muted:#6B7280; --border:#E5E7EB;
+      --primary:#0B3D3F; --shadow:0 10px 24px rgba(0,0,0,.07);
+      --goodBg:#ECFDF5; --goodText:#065F46; --badBg:#FEF2F2; --badText:#991B1B;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .wrap{ width:min(980px,92vw); margin:26px auto 60px; }
+    .header{ background:var(--primary); color:#fff; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:var(--shadow); }
+    .header img{ height:32px; width:auto; }
+    .header .t1{ font-weight:800; }
+    .header .t2{ font-size:12px; opacity:.9; }
+    .card{ margin-top:14px; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow); }
+    h1{ margin:6px 0 6px; color:var(--primary); font-size:24px; }
+    p{ margin:0; color:var(--muted); line-height:1.5; }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    label{ display:flex; flex-direction:column; gap:6px; font-size:14px; font-weight:700; color:#374151; }
+    input, select{
+      width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:15px; background:#fff; color:var(--text);
+    }
+    .btn{ border:0; background:var(--primary); color:#fff; padding:12px 14px; border-radius:12px; font-size:15px; font-weight:800; cursor:pointer; width:100%; }
+    .btn.ghost{ background:transparent; color:var(--primary); border:1px solid rgba(11,61,63,.35); }
+    .error{ display:none; margin-top:12px; background:var(--badBg); border:1px solid #FCA5A5; color:var(--badText); padding:10px 12px; border-radius:12px; font-size:14px; }
+    .mini{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:12px; margin-top:12px; }
+    .kv{ display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px dashed #E5E7EB; }
+    .kv:last-child{ border-bottom:0; }
+    .k{ color:var(--muted); font-size:13px; }
+    .v{ font-weight:800; color:#111827; }
+    @media(max-width:720px){ .row{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <img src="/hoxton-logo.png" alt="Hoxton Wealth">
+      <div>
+        <div class="t1">Hoxton Wealth</div>
+        <div class="t2">Insurance Calculator — Life & Critical Illness</div>
+      </div>
+    </div>
+
+    <div class="card" id="step1">
+      <h1>Monthly Expenditure</h1>
+      <p>Enter your monthly expenses by category. All values should be in the same currency.</p>
+
+      <div class="row" style="margin-top:14px;">
+        <label>Housekeeping (monthly)
+          <input type="number" id="housekeeping" min="0" value="0">
+        </label>
+        <label>Motoring & Commuting (monthly)
+          <input type="number" id="motoring" min="0" value="0">
+        </label>
+        <label>Personal (monthly)
+          <input type="number" id="personal" min="0" value="0">
+        </label>
+        <label>Finance & Insurance (monthly)
+          <input type="number" id="finance" min="0" value="0">
+        </label>
+        <label>Professional Fees (monthly)
+          <input type="number" id="professional" min="0" value="0">
+        </label>
+        <label>Dependents (monthly)
+          <input type="number" id="dependents" min="0" value="0">
+        </label>
+      </div>
+
+      <div class="mini" style="margin-top:14px;">
+        <div class="kv"><div class="k">Total Monthly</div><div class="v" id="totalMonthly">0</div></div>
+        <div class="kv"><div class="k">Total Annual</div><div class="v" id="totalAnnual">0</div></div>
+      </div>
+
+      <div class="row" style="margin-top:14px;">
+        <button class="btn" id="toStep2">Next →</button>
+      </div>
+    </div>
+
+    <div class="card" id="step2" style="display:none;">
+      <h1>Variables</h1>
+      <p>Adjust the assumptions used to calculate required cover.</p>
+
+      <div class="row" style="margin-top:14px;">
+        <label>Life: Expenditure Coverage (years)
+          <input type="number" id="lifeCoverageYears" min="1" max="25" value="5">
+        </label>
+        <label>Life: Child Care Lump Sum (per year)
+          <input type="number" id="childCareLumpSum" min="0" value="50000">
+        </label>
+        <label>Total Child Years Remaining (sum of 18 - age)
+          <input type="number" id="totalChildYearsRemaining" min="0" value="0">
+        </label>
+        <label>Mortgage Remaining
+          <input type="number" id="mortgageRemaining" min="0" value="0">
+        </label>
+        <label>Loans Remaining
+          <input type="number" id="loansRemaining" min="0" value="0">
+        </label>
+        <label>Current Life Cover
+          <input type="number" id="currentLifeCover" min="0" value="0">
+        </label>
+
+        <label>CIC: Expenditure Coverage (months)
+          <input type="number" id="cicMonths" min="6" step="6" max="60" value="24">
+        </label>
+        <label>CIC: Enhanced Medical Care
+          <input type="number" id="enhancedMedicalCare" min="0" value="500000">
+        </label>
+        <label>Current CIC Cover
+          <input type="number" id="currentCicCover" min="0" value="0">
+        </label>
+      </div>
+
+      <div id="err" class="error"></div>
+
+      <div class="row" style="margin-top:14px;">
+        <button class="btn" id="calcBtn">Calculate My Cover Needs →</button>
+        <button class="btn ghost" id="backBtn">← Back</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => new Intl.NumberFormat("en-GB",{ maximumFractionDigits:0 }).format(Number(n||0));
+
+  function totals(){
+    const housekeeping = Number($("housekeeping").value||0);
+    const motoring = Number($("motoring").value||0);
+    const personal = Number($("personal").value||0);
+    const finance = Number($("finance").value||0);
+    const professional = Number($("professional").value||0);
+    const dependents = Number($("dependents").value||0);
+    const totalMonthly = housekeeping+motoring+personal+finance+professional+dependents;
+    const totalAnnual = totalMonthly*12;
+    $("totalMonthly").textContent = money(totalMonthly);
+    $("totalAnnual").textContent = money(totalAnnual);
+    return { housekeeping,motoring,personal,finance,professional,dependents,totalMonthly,totalAnnual };
+  }
+
+  ["housekeeping","motoring","personal","finance","professional","dependents"].forEach(id=>{
+    $(id).addEventListener("input", totals);
+  });
+  totals();
+
+  function showStep(n){
+    $("step1").style.display = (n===1) ? "" : "none";
+    $("step2").style.display = (n===2) ? "" : "none";
+  }
+
+  $("toStep2").addEventListener("click", ()=> showStep(2));
+  $("backBtn").addEventListener("click", ()=> showStep(1));
+
+  function showError(msg){
+    const e = $("err");
+    e.textContent = msg;
+    e.style.display = msg ? "block" : "none";
+  }
+
+  $("calcBtn").addEventListener("click", ()=>{
+    showError("");
+
+    const t = totals();
+    if (t.totalMonthly <= 0) return showError("Total monthly expenditure must be greater than 0.");
+
+    const lifeCoverageYears = Number($("lifeCoverageYears").value||0);
+    const childCareLumpSum = Number($("childCareLumpSum").value||0);
+    const totalChildYearsRemaining = Number($("totalChildYearsRemaining").value||0);
+    const mortgageRemaining = Number($("mortgageRemaining").value||0);
+    const loansRemaining = Number($("loansRemaining").value||0);
+    const currentLifeCover = Number($("currentLifeCover").value||0);
+
+    const cicMonths = Number($("cicMonths").value||0);
+    const enhancedMedicalCare = Number($("enhancedMedicalCare").value||0);
+    const currentCicCover = Number($("currentCicCover").value||0);
+
+    if (lifeCoverageYears < 1) return showError("Life coverage years must be at least 1.");
+    if (cicMonths < 6) return showError("CIC months must be at least 6.");
+
+    // --- formulas (from guide) ---
+    const expenditureCover = t.totalAnnual * lifeCoverageYears;
+    const childCare = childCareLumpSum * totalChildYearsRemaining;
+    const totalLifeNeed = expenditureCover + childCare + mortgageRemaining + loansRemaining;
+    const additionalLifeNeed = totalLifeNeed - currentLifeCover;
+
+    const cicExpenditure = t.totalMonthly * cicMonths;
+    const totalCicNeed = cicExpenditure + enhancedMedicalCare;
+    const additionalCicNeed = totalCicNeed - currentCicCover;
+
+    const results = {
+      // inputs summary
+      totalMonthlyExpenditure: t.totalMonthly,
+      totalAnnualExpenditure: t.totalAnnual,
+
+      lifeCoverageYears,
+      childCareLumpSum,
+      totalChildYearsRemaining,
+      mortgageRemaining,
+      loansRemaining,
+      currentLifeCover,
+
+      cicMonths,
+      enhancedMedicalCare,
+      currentCicCover,
+
+      // outputs
+      expenditureCover,
+      childCare,
+      totalLifeNeed,
+      additionalLifeNeed,
+      cicExpenditure,
+      totalCicNeed,
+      additionalCicNeed
+    };
+
+    localStorage.setItem("hoxton_insurance_results", JSON.stringify(results));
+    window.location.href = "lead.html";
+  });
+</script>
+</body>
+</html>
