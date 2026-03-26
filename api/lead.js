@@ -23,47 +23,45 @@ export default async function handler(req, res) {
     const phoneCode = String(data.phoneCode || "").replace("+", "").trim();
     const phoneNumber = String(data.phoneNumber || "").trim();
 
+    // ✅ NEW Insurance activity id
     const orttoBody = {
       activities: [
         {
-          activity_id: "act:cm:websiteformsubmit",
+          activity_id: "act:cm:insurance-calculator-submitted",
           attributes: {
-            "phn:cm:mobile-number-user-input": { c: phoneCode, n: phoneNumber },
-            "str:cm:country-of-residence-user-input": data.country || "",
-            "str:cm:email": data.email || "",
-            "str:cm:first-name-user-input": data.firstName || "",
-            "str:cm:last-name-user-input": data.lastName || "",
+            // Use these only if you created matching fields in the activity schema:
+            "str:cm:first-name": data.firstName || "",
+            "str:cm:last-name": data.lastName || "",
+            "str:cm:country": data.country || "",
+            "phn:cm:phone": { c: phoneCode, n: phoneNumber },
 
-            // store insurance calculator payload here
-            "str:cm:your-questions-user-input-on-the-event-forms": JSON.stringify({
+            // Store full calculator payload here:
+            "str:cm:answers": JSON.stringify({
               tool: "insurance-calculator",
               currency: data.currency || null,
-              ...results
+              ...results,
             }),
-
-            "str:cm:source-page-url": data.sourcePageUrl || "",
-            "str:cm:topic-page-title": data.topicPageTitle || ""
           },
           fields: {
-            "str::email": data.email
+            "str::email": data.email,
           },
           location: {
             source_ip: req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || null,
             custom: null,
-            address: null
-          }
-        }
+            address: null,
+          },
+        },
       ],
-      merge_by: ["str::email"]
+      merge_by: ["str::email"],
     };
 
     const r = await fetch(ORTTO_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Api-Key": ORTTO_API_KEY
+        "X-Api-Key": ORTTO_API_KEY,
       },
-      body: JSON.stringify(orttoBody)
+      body: JSON.stringify(orttoBody),
     });
 
     const text = await r.text();
@@ -73,7 +71,7 @@ export default async function handler(req, res) {
         ok: false,
         error: "Ortto error",
         orttoStatus: r.status,
-        orttoResponse: text
+        orttoResponse: text,
       });
     }
 
